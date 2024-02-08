@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import * as THREE from 'three'
 import GpsRelativePosition from "../utils/GpsRelativePosition";
 import { useRef } from "react";
@@ -11,8 +11,8 @@ const options = {
 
 export default function Shape({coordinates, color}) {
     const geometry = useRef()
-
-    useEffect(() => {
+    
+    useLayoutEffect(() => {
         geometry.current.computeBoundingBox()
         geometry.current.rotateX(Math.PI/2)
         geometry.current.rotateZ(Math.PI)

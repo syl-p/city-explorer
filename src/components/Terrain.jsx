@@ -1,18 +1,10 @@
-import * as GeoTIFF from "geotiff";
-import { useContext, useEffect, useRef, useState } from "react";
-import GpsRelativePosition from "../utils/GpsRelativePosition";
-import { OrthographicCamera, PerspectiveCamera, RenderTexture } from "@react-three/drei";
+import { useEffect, useRef } from "react";
+import { PerspectiveCamera, RenderTexture } from "@react-three/drei";
 import { PlaneGeometry } from "three";
 import * as THREE from "three"
-import { DataContext } from "../DataContext";
 
 export default function Terrain({children}) {
     const terrainRef = useRef(null)
-    const {state, setTerrainRef} = useContext(DataContext)
-
-    useEffect(() => {
-        setTerrainRef(terrainRef)
-    }, [])
 
     function TerrainGeo({x, y, data, children}) {
         const geometry = new PlaneGeometry(x, y, x-1 , y-1)
@@ -23,7 +15,7 @@ export default function Terrain({children}) {
                 geometry.getAttribute('position').needsUpdate = true
             }
             geometry.computeBoundingBox()
-        }, [])
+        })
 
         return <>
             <mesh ref={terrainRef} geometry={geometry} receiveShadow castShadow rotation-x={Math.PI/2} rotation-z={-Math.PI /2}>

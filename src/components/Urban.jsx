@@ -1,10 +1,8 @@
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import * as THREE from 'three'
 import GpsRelativePosition from "../utils/GpsRelativePosition";
 const CENTER = [2.3496561, 43.2125702]
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
-import { DataContext } from "../DataContext";
-import { Box } from "@react-three/drei";
 
 function shape(coordinates, height = 1, target) {
     if(!coordinates[0][1]) return;
@@ -40,19 +38,16 @@ function shape(coordinates, height = 1, target) {
         return shape
     }
 
-    const shape = useMemo(() => {
-        let shape = null
-        const holes = []
-        for (let i = 0; i < coordinates.length; i++) {
-            const shapeIte = genShape(coordinates[i], CENTER);
-            if(i === 0) {
-                shape = shapeIte
-            } else {
-                holes.push(shapeIte)
-            }
+    let shape = null
+    const holes = []
+    for (let i = 0; i < coordinates.length; i++) {
+        const shapeIte = genShape(coordinates[i], CENTER);
+        if(i === 0) {
+            shape = shapeIte
+        } else {
+            holes.push(shapeIte)
         }
-        return shape
-    }, [coordinates, height, target])
+    }
 
     const extrude = new THREE.ExtrudeGeometry(shape, options)
     extrude.computeBoundingBox()
@@ -60,28 +55,19 @@ function shape(coordinates, height = 1, target) {
     return extrude
 }
 
-export default function Urban({target}) {
-    const {state} = useContext(DataContext)
-    let geometryArray = []
-    let merged = null
-    const meshRef = useRef()
-
-    useEffect(() => {
-        console.log('mount', target)
-        return () => {
-            // unmount
-        }
-    }, [target])
+export default function Urban({features, target}) {
+    const merged = useMemo(() => {
+        let geometryArray = []
+        features.filter(v => v.geometry && v.geometry.type === "Polygon").map(feature => (
+            geometryArray.push(shape(feature.geometry.coordinates, feature.properties["building:levels"], target))
+        ))
     
-    state.data.buildings.features.filter(v => v.geometry && v.geometry.type === "Polygon").map(feature => (
-        geometryArray.push(shape(feature.geometry.coordinates, feature.properties["building:levels"], target))
-    ))
-
-    merged = BufferGeometryUtils.mergeGeometries(geometryArray)
+        return BufferGeometryUtils.mergeGeometries(geometryArray)
+    }, [features, target])
 
     return <>
-        <mesh ref={meshRef} castShadow receiveShadow geometry={merged} rotation-z={-Math.PI /2}>
-            <meshStandardMaterial color="white"/>
+        <mesh castShadow receiveShadow geometry={merged} rotation-z={-Math.PI /2}>
+            <meshStandardMaterial color="white" />
         </mesh>
     </>
 }

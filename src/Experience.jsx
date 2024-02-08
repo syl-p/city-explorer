@@ -91,8 +91,9 @@ export default function Experience() {
             </group> */}
 
             <group rotation-x={Math.PI / 2} rotation-y={Math.PI}>
-                <Urban target={target}/>
+                <Urban features={state.data.buildings.features} target={target}/>
             </group>
+
             <ContactShadows opacity={1} scale={100} blur={0.05} far={0.4} resolution={2048} frames={1} color="#000000"/>
             <Sky />
             <Rig />
